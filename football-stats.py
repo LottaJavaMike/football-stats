@@ -34,3 +34,48 @@ class APIFootball:
         Returns:
             list or dict: The 'response' field from the API's JSON output, or an empty list/none if there's an error or no data.
         """
+        try:
+            # Construct the full URL for the request
+            url = f"{self.base_url}/{endpoint}"
+            # Send the GET request to the API with the specified headers and parameters
+            response = requests.get(url, headers=self.headers, params=params)
+            # Raise an HTTPError for bad responses (4xx or 5xx)
+            # This helps us catch errors like "Not Found" or "Unauthorized" easily.
+            response.raise_for_status()
+            # Parse the JSON response from the API into a Python dictionary
+            data = response.json()
+
+            # API-Football typically returns a 'response' field that contains the actual data we want.
+            # If the 'response' field is not present, we return an empty list.
+            if data and data.get('response'):
+                return data['response']
+            else:
+                # If the 'resposnse' key is empty or missing, check for specific API-side errors.
+                if data.get('errors'):
+                    print(f"API Error for {endpoint}: with params {params}: {data['errors']}")
+                return [] # Return an empty list if no valid response or specific errors are found.
+        # --- Error Handling for network and HTTP issues ---
+        # Catch specific HTTP errors
+        except requests.exceptions.HTTPError as http_err:
+            print(f"HTTP error occurred: {http_err} for endpoint {endpoint} with params {params}")
+            if response.status_code == 403:
+                print("Error 403: Forbidden. Your API key may be invalid or you may not have access to this endpoint.")
+            elif response.status_code == 429:
+                print("Error 429: Too Many Requests. You have exceeded your API rate limit.")
+            return None # Return None to indicate an error occurred.
+        # Catch connection-related errors (e.g., no internet)
+        except requests.exceptions.ConnectionError as conn_err:
+            print(f"Connection error occurred: {conn_err} - Check your Internet connection.")
+            return None # Return None to indicate an error occurred.
+        # Catch timeout errors if the server takes too long to respond
+        except requests.exceptions.Timeout as timeout_err:
+            print(f"Timeout error occurred: {timeout_err} - The requeest took too long to respond.")
+            return None
+        # Catch any other general request exceptions
+        except requests.exceptions.RequestException as req_err:
+            print(f"Request error occurred: {req_err} for endpoint {endpoint} with params {params}")
+            return None
+        # Catch errors if the response body isn't valid JSON
+        except json.JSONDecodeError:
+            print(f"Error: Could not decode JSON response from {endpoint}. The API might have returned non-JSON data.")
+            return None
