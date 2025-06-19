@@ -79,3 +79,48 @@ class APIFootball:
         except json.JSONDecodeError:
             print(f"Error: Could not decode JSON response from {endpoint}. The API might have returned non-JSON data.")
             return None
+        
+    def get_league_id(self, league_name, country_name="England", current_season=None):
+        """
+        Retrieves the unique ID for a specified football league within a given coutry and season.
+        This ID is necessary for subsequent API calls to get team statistics.
+        
+        Args:
+            league_name (str): The full name of the league (e.g., "Premier League").
+            country_name (str): The country where the league is located (default is "England").
+            current_season (int, optional): The specific year of the season to look for.
+                If not provided, the current year is used.
+                
+        Returns: 
+            int: The numerical ID of the league, or None if not found.
+        """
+        if current_season is None:
+            current_season = datetime.now().year # Get the current year if not specified.
+        # Parameters for searching leagues: by name and country
+        params = {
+            "name": league_name,
+            "country": country_name,
+            "season": current_season
+        leagues = self._make_request("leagues", params) # Call the API to get league data
+
+        if not leagues:
+            print(f"No leagues found for {league_name} in {country_name} for the season {current_season}.")
+            return None # Return None if no leagues are found
+        
+        # Loop through the leagues to find the one that matches the name and country
+        for league_data in leagues:
+            # Each league entry can contain maultiple seasons, We need to find the current one
+            for season_info in league_data.get('seasons', []):
+                # Check if the season year matches and if it's marked as the 'current' season
+                if season_info.get('year') == current_season and season_info.get('current', False):
+                    # Return the league ID if found
+                    return league_data['id']
+        # If no 'current' season for the specified year is explicitly found,
+        # we try to return the ID of *any* season found for that league.
+        # This is a fallback in case the 'current' flag isn't perfectly up-to-date in the API.
+        for league_data in leaggues:
+            if league_data.get('id'):
+                print(f"Warning: No current season found for '{league_name}' ({country_name}) for {current_season}. Returning ID for any available season.")
+                return league_data['id']
+        print(f"Could not find a current league ID for '{league_name}' in '{country_name}' for season {current_season}.")
+        return None
