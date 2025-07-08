@@ -266,3 +266,36 @@ class APIFootball:
 
             print("-------------------------------------------")
             return team_stats
+
+# --- How to use the function ---
+# This section demonstrates how to use the APIFootball class.
+# IMPORTANT: Replace 'your_api_key_here' with your actual API key from api-football.io.
+# You can sign up and get a free key (with limitations) here:
+# https://www.api-sports.io/documentation/football/v3
+
+# Your API-Sports Key - THIS MIST BE REPLACED WITH YOUR ACTUAL KEY
+api_key = "YOU_APISPORTS_KEY"APIFootball
+
+# Initialize the API client by creating an instance of the APIFootballClient class.
+# This makes the API interaction methods available.
+api_client = APIFootballClient(api_key)
+
+# Example usage:
+# Define the team, league, and country you want to search for.
+# Make sure the names are spelled correctly to match the API's data.
+team_name_to_search = "Manchester United"
+league_name_to_search = "Premier League"
+country_name_to_search = "England"
+
+# Call the get_team_statistics method to fetch and display the statistics.
+api_client.get_team_statistics(team_name_to_search, league_name_to_search, country_name_to_search)
+
+# You can uncomment and modify these lines to try with different teams or leagues.
+# team_name_to_search_2 = "Liverpool"
+# api_client.get_team_statistics(team_name_to_search_2, league_name_to_search, country_name_to_search)
+
+# Example for a different English League (note: lower leagues might require a paid plan)
+# team_name_to_search_3 = "Leeds United"
+# league_name_to_search_3 = "Championship"
+# api_client.get_team_statistics(team_name_to_search_3, league_name_to_search_3, country_name_to_search)
+
