@@ -2,7 +2,7 @@ import requests
 import json
 from datetime import datetime
 
-class APIFootball:
+class APIFootballClient:
     """
     This class is designed to interact with the API-Football service.
     It encapsulates all the logic for making requests to the API and processing the responses, 
