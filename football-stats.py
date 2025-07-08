@@ -274,7 +274,7 @@ class APIFootball:
 # https://www.api-sports.io/documentation/football/v3
 
 # Your API-Sports Key - THIS MIST BE REPLACED WITH YOUR ACTUAL KEY
-api_key = "YOU_APISPORTS_KEY"APIFootball
+api_key = "YOU_APISPORTS_KEY"
 
 # Initialize the API client by creating an instance of the APIFootballClient class.
 # This makes the API interaction methods available.
