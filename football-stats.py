@@ -238,7 +238,7 @@ class APIFootball:
             print(f"\nGoals:")
             # Accessing nested dictionaries safely using .get()
             print(f" For (Total): {goals['for'].get('total', {}).get('total')}")
-            print(f: Against (Total): {goals['against'].get('total', {}).get('total')}")
+            print(f" Against (Total): {goals['against'].get('total', {}).get('total')}")
             if 'average' in goals['for']:
                 print(f" Average Goals For (Home): {goals['for']['average'].get('home')}")
                 print(f" Average Goals For (Away): {goals['for']['average'].get('away')}")
