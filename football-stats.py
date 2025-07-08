@@ -97,10 +97,7 @@ class APIFootball:
         if current_season is None:
             current_season = datetime.now().year # Get the current year if not specified.
         # Parameters for searching leagues: by name and country
-        params = {
-            "name": league_name,
-            "country": country_name,
-            "season": current_season
+        params = {"name": league_name, "country": country_name, "season": current_season}
         leagues = self._make_request("leagues", params) # Call the API to get league data
 
         if not leagues:
@@ -118,7 +115,7 @@ class APIFootball:
         # If no 'current' season for the specified year is explicitly found,
         # we try to return the ID of *any* season found for that league.
         # This is a fallback in case the 'current' flag isn't perfectly up-to-date in the API.
-        for league_data in leaggues:
+        for league_data in leagues:
             if league_data.get('id'):
                 print(f"Warning: No current season found for '{league_name}' ({country_name}) for {current_season}. Returning ID for any available season.")
                 return league_data['id']
@@ -146,7 +143,7 @@ class APIFootball:
         teams_data = self._make_request("teams", params) # Call the API to get team data
 
         if not teams_data:
-            print{f"No teams found for search '{team_name}' in league ID {league_id} for season {current_season}"}
+            print(f"No teams found for search '{team_name}' in league ID {league_id} for season {current_season}")
             return None
 
         # The 'teams' endpoint with 'search' parameter can return multiple results.
