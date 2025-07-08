@@ -153,7 +153,7 @@ class APIFootball:
             if team_info['team']['name'].lower() == team_name.lower():
                 return team_info['team']['id'] # Return the team's ID if an exact match is found
 
-            print(f"Team '{team_name}' not found within league ID {league_id} for season {current_year}. Check spelling.")
+            print(f"Team '{team_name}' not found within league ID {league_id} for season {current_season}. Check spelling.")
             return None
     
     def get_team_statistics(self, team_name, league_name, country_name="England"):
