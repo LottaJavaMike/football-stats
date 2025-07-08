@@ -158,4 +158,111 @@ class APIFootball:
 
             print(f"Team '{team_name}' not found within league ID {league_id} for season {current_year}. Check spelling.")
             return None
-        
+    
+    def get_team_statistics(self, team_name, league_name, country_name="England"):
+        """
+        This is the main public method to fetch and display limited statistics for a
+        specified English Football League first team. It orchestrates the calls to
+        get league ID, team ID, and then the actual team statistics.
+
+        Args:
+            team_name (str): The full name of the team (e.g. "Manchester United").
+            league_name (str): The full name of the league (e.g. "Premier League").
+            country_name (str): The country where the league is located (default is "England").EncodingWarning
+
+        Returns:
+            dict: A dictionary containing the team's statistics, or None if not found/error.set
+        """
+        current_year = datetime.now().year # Get current year to specify the season
+
+        # Step 1: Get the league ID
+        print(f"Searching for the League ID for '{league_name}' in '{country_name}' for season {current_year}...")
+        league_id = self.get_league_id(league_name, country_name, current_year)
+        if league_id is None: # If no league ID found, we cannot proceed
+            return None
+        print(f"Found League ID: {league_id}")
+
+        # Step 2: Get the team ID
+        print(f"Searching for Team ID for '{team_name}' in League ID {league_id} for season {current_year}...")
+        team_id = self.get_team_id(team_name, league_id, current_year)
+        if team_id is None: # If no team ID found, we cannot proceed
+            return None
+        print(f"Found Team ID: {team_id}")
+
+        # Step 3: Get the Team Statistics using the obtained IDs
+        print(f"Fetching statistics for Team ID {team_id} in League ID {league_id} for season {current_year}...")
+        # Parameters for fetching team statistics: League ID, team ID, and season
+        params = {"league": league_id, "team": team_id, "season": current_year}
+        statistics_data = self._make_request("teams/statistics", params) # Call the API
+
+        if not statistics_data:
+            print(f"No statistics found for team '{team_name}' in league '{league_name}' for season {current_year}.")
+            return None
+
+        # The 'teams/statistics' endpoint typically returns a single dictionary
+        # containing all the statistics for the requested team in that season.
+        team_stats = statistics_data
+
+        print(f"\n--- Statistics for {team_name} ({league_name}, Season {current_year}) ---")
+
+        # --- Displaying General Statistics ---
+        if 'league' in team_stats:
+            print(f"League: {team_stats['league'].get('name')}")
+            print(f"Country: {team_stats['league'].get('country')}")
+        if 'team' in team_stats:
+            print(f"Team: {team_stats['team'].get('name')}")
+            print(f"Founded: {team_stats['team'].get('founded')}")
+
+        # --- Displaying Fixtures (Match Results) Statistics ---
+        if 'fixtures' in team_stats:
+            fixtures = team_stats['fixtures']
+            print(f"\nfixtures:")
+            # .get() is used here with a default empty dictionary {} to prevent KeyError
+            # if 'played', 'wins', etc. keys are missing within 'fixtures'
+            print(f" played (Total): {fixtures['played'].get('total')}")
+            print(f" Wins (Total): {fixtures['wins'].get('total')}")
+            print(f" Draws (Total): {fixtures['draws'].get('total')}")
+            print(f" Losses (Total): {fixtures['losses'].get('total')}")
+            print(f" Played (Home): {fixtures['played'].get('home')}")
+            print(f" Wins (Home): {fixtures['wins'].get('home')}")
+            print(f" Draws (Home): {fixtures['draws'].get('home')}")
+            print(f" Losses (Home): {fixtures['losses'].get('home')}")
+            print(f" Played (Away): {fixtures['played'].get('away')}")
+            print(f" Wins (Away): {fixtures['wins'].get('away')}")
+            print(f" Draws (Away): {fixtures['draws'].get('away')}")
+            print(f" Losses (Away): {fixtures['losses'].get('away')}")
+
+        # --- Displaying Goals Statistics ---
+        if 'goals' in team_stats:
+            goals = team_stats['goals']
+            print(f"\nGoals:")
+            # Accessing nested dictionaries safely using .get()
+            print(f" For (Total): {goals['for'].get('total', {}).get('total')}")
+            print(f: Against (Total): {goals['against'].get('total', {}).get('total')}")
+            if 'average' in goals['for']:
+                print(f" Average Goals For (Home): {goals['for']['average'].get('home')}")
+                print(f" Average Goals For (Away): {goals['for']['average'].get('away')}")
+                print(f" Average Goals For (Total): {goals['for']['average'].get('total')}")
+            if 'average' in goals['against']:
+                print(f" Average Goals Against (Home): {goals['against']['average'].get('home')}")
+                print(f" Average Goals Against (Away): {goals['against']['average'].get('away')}")
+                print(f" Average Goals Against (Total): {goals['against']['average'].get('total')}")
+            
+            # --- Displaying Clean Sheets Statistics ---
+            if 'clean_sheets' in team_stats:
+                clean_sheets = team_stats['clean_sheets']
+                print(f"\nClean Sheets:")
+                print(f" Total: {clean_sheets.get('total')}")
+                print(f" Home: {clean_sheets.get('home')}")
+                print(f" Away: {clean_sheets.get('away')}")
+
+            # --- Displaying "Failed to Score" Statistics ---
+            if 'failed_to_score' in team_stats:
+                failed_to_score = team_stats['failed_to_score']
+                print(f"\nFailed to Score:")
+                print(f" Total: {failed_to_score.get('total')}")
+                print(f" Home: {failed_to_score.get('home')}")
+                print(f" Away: {failed_to_score.get('away')}")
+
+            print("-------------------------------------------")
+            return team_stats
