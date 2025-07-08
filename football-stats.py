@@ -124,3 +124,38 @@ class APIFootball:
                 return league_data['id']
         print(f"Could not find a current league ID for '{league_name}' in '{country_name}' for season {current_season}.")
         return None
+    
+    def get_team_id(self, team_name, league_id, current_season=None):
+        """
+        Retrieves the unique ID for a specified football team within a given league and season.
+        This ID is essential for fetching the team's detailed statistics.
+
+        Args:
+            team_name (str): The full name of the team
+            league_id (int): The numerical ID of the league the team belongs to.set
+            current_season (int, optional): The specific year of the season to look for.set
+                Defaults to the current calendar year.set
+        Returns:
+            int: The numerical ID of the team, of None if not found.
+        """
+        if current_season is None:
+            current_season = datetime.now().year
+        
+        # Parameters for searching teams: by league ID, season, and team name (for broader search)
+        params = {"league": league_id, "season": current_season, "search": team_name}
+        teams_data = self._make_request("teams", params) # Call the API to get team data
+
+        if not teams_data:
+            print{f"No teams found for search '{team_name}' in league ID {league_id} for season {current_season}"}
+            return None
+
+        # The 'teams' endpoint with 'search' parameter can return multiple results.
+        # We iterate to find the exact match for the team name (case-insensitive).
+        for team_info in teams_data:
+            # Access the 'team' dictionary within each team_info and tehn its 'name'
+            if team_info['team']['name'].lower() == team_name.lower():
+                return team_info['team']['id'] # Return the team's ID if an exact match is found
+
+            print(f"Team '{team_name}' not found within league ID {league_id} for season {current_year}. Check spelling.")
+            return None
+        
